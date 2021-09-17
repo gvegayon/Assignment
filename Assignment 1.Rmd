@@ -1,0 +1,85 @@
+---
+title: "Assignment 1"
+author: "Juehan Wang"
+date: "9/15/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+library(data.table)
+library(leaflet)
+```
+
+# Primary question: Whether daily concentrations of PM2.5 have decreased in California over the last 15 years (from 2004 to 2019).
+
+## Step 1
+
+### Read the data
+
+```{r}
+ad_2004 <- data.table::fread("/Users/juehanwang/Desktop/566/Assignments/Assignment 1/Data/ad_viz_plotval_data.csv")
+ad_2019 <- data.table::fread("/Users/juehanwang/Desktop/566/Assignments/Assignment 1/Data/ad_viz_plotval_data (1).csv")
+```
+
+### Check the dimensions, headers, footers, variable names and variable types.
+
+```{r}
+dim(ad_2004)
+head(ad_2004)
+tail(ad_2004)
+str(ad_2004)
+
+dim(ad_2019)
+head(ad_2019)
+tail(ad_2019)
+str(ad_2019)
+```
+### Take a closer look at the key variables.
+
+```{r}
+table(ad_2004$Date)
+table(ad_2004$"Site ID")
+table(ad_2004$STATE)
+table(ad_2004$COUNTY)
+summary(ad_2004$"Daily Mean PM2.5 Concentration")
+
+table(ad_2019$Date)
+table(ad_2019$"Site ID")
+table(ad_2019$STATE)
+table(ad_2019$COUNTY)
+summary(ad_2019$"Daily Mean PM2.5 Concentration")
+```
+
+## Step 2
+
+### Combine the two years of data and make some cleaning
+
+```{r}
+# combine
+ad <- rbind(ad_2004,ad_2019)
+ad$date <- as.Date(ad$Date,'%m/%d/%Y')
+ad$Year <- as.numeric(format(ad$date,'%Y'))
+ad <- subset(ad,select=-c(date))
+
+# rename
+names(ad)[grep("Daily Mean PM2.5 Concentration", colnames(ad))] <- "PM"
+names(ad)[grep("Site ID", colnames(ad))] <- "Site_ID"
+```
+
+## Step 3
+
+### Spactial distribution of the monitoring sites
+
+```{r}
+m <- leaflet(ad) %>% 
+  addProviderTiles('CartoDB.Positron') %>% 
+  addCircles(lat = ~SITE_LATITUDE, lng = ~SITE_LONGITUDE, opacity = 1, fillOpacity = 1, radius = 400)
+
+cf <- colorFactor("cf", domain = ad$Year)
+m  %>%  addCircleMarkers(~SITE_LONGITUDE, ~SITE_LATITUDE, radius = ~400, color = ~cf(Year), fillOpacity = 0.5)
+```
+
