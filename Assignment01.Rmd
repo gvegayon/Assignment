@@ -3,13 +3,11 @@ title: "Assignment 01 - Exploratory Data Analysis"
 author: "Juehan Wang"
 date: "9/15/2021"
 output: 
-    html_document:
-      toc: yes 
-      toc_float: yes 
-      keep_md: yes
-    github_document:
-      keep_html: true
-      html_preview: false
+  html_document:
+    toc: yes 
+    toc_float: yes 
+  github_document:
+    html_preview: false
 always_allow_html: true
 ---
 
@@ -90,7 +88,7 @@ names(ad)[grep("Site ID", colnames(ad))] <- "Site_ID"
 
 ### Summarize the spatial distribution of the monitoring sites.
 
-```{r spatial-distribution}
+```{r spatial-distribution, eval = knitr::is_html_output(excludes = "gfm")}
 sd <- leaflet(ad) %>%
     addProviderTiles('CartoDB.Positron') %>% 
     addCircles(
